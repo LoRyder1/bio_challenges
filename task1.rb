@@ -11,64 +11,65 @@
 
 # * The chacter '!' represents the lowest quality while '~' is the highest
 
+#----- Pseudocode---------
+
+# 1. Find all fastq files recursively do this in a List Class
+# 2. each file found should be an instance of the File Class
+# 3. Each file is opened and then parsed line by line 
+# 4. put all sequences in one array and seq larger than 30 in another array
+# 5. get percent using both arrays 
 
 #-------- Coding Task -----------
 
 # 1)  Recursively find all FASTQ files in a directory and report each file name and the percent of sequences in that file that are greater than 30 nucleotides long.
 
-# Psuedocode 
-
-
 
 class FileFastQ
  	attr_reader :file_by_line, :all_seqs, :seqs_larger_30, :percent_greater_30, :file
-	def initialize(file_loc)
-		@file = File.open(file_loc)
+	def initialize(filepath)
+		@file = File.open(filepath)
 		@file_by_line = []
 		@all_seqs = []
 		@seqs_larger_30 = []
 		@percent_greater_30 = nil
 	end
 
-
  	def display_percents
- 		file = File.basename(@file)
+ 		file_name = File.basename(file)
  		<<-TEXT
 
 		++++++++++++++++++++++++++++
 
-    		#{file}: #{@percent_greater_30}%
+    		#{file_name}: #{percent_greater_30}%
 
     TEXT
   end
 
+	def get_percent
+		parse_fastq
+		num_larger_30 = seqs_larger_30.count
+		total = all_seqs.count	
+		@percent_greater_30 = percent(num_larger_30,total)
+	end
 
 	def parse_fastq
-		@file.each do |line|
-			@file_by_line << line
-		end
+		file.each { |line| file_by_line << line }
 		all_sequences
 		greater_than_30
-		percent
 	end
 
 	def all_sequences
-		@file_by_line.each_with_index do |line, index|
-			@all_seqs << line.strip if (index-1)%4 == 0
+		file_by_line.each_with_index do |line, index|
+			all_seqs << line.strip if (index-1)%4 == 0
 		end
 	end
 
 	def greater_than_30
-		@all_seqs.each do |seq|
-			@seqs_larger_30 << seq if seq.size > 30
-		end
+		all_seqs.each { |seq| seqs_larger_30 << seq if seq.size > 30 }
 	end
 
-	def percent
-		num_all_seq = @all_seqs.count
-		num_larger_30 = @seqs_larger_30.count
-		percent = num_larger_30.to_f/num_all_seq.to_f*100
-		@percent_greater_30 = percent.round(2)
+	def percent(x,y)
+		(x.to_f/y.to_f*100).round(2)
 	end
 
 end
@@ -82,23 +83,37 @@ class ListFastQ
 	def find_fastq_files
 		fastq_files = File.join("**", "read*", "**", "*.fastq")
 		Dir.glob(fastq_files).each do |file|
-			@files << FileFastQ.new(file)
+			files << FileFastQ.new(file)
 		end
-		parse
 	end
 
-	def parse
-		@files.each do |file|
-			file.parse_fastq
-		end
+	def get_percents
+		files.each { |file| file.get_percent }
 	end
 
 	def display
-		puts "		Percent of Sequences greater than 30 nucleotides "
-		files.map {|x| x.display_percents }
+		print "\e[2J"
+		puts "	Percent of Sequences greater than 30 nucleotides "
+		puts files.map { |x| x.display_percents }
 	end
 end
 
+
+if ARGV[0] == nil
+	puts "to display ENTER: 'ruby task1.rb display'"
+else
+	list = ListFastQ.new
+	list.find_fastq_files
+	list.get_percents
+	if ARGV[0] == "display"
+		list.display
+	else 
+		puts "ENTER: 'ruby task1.rb display'"
+	end
+end
+
+
+#-- Driver Code------
 
 # ex = ListFastQ.new
 # ex.find_fastq_files
@@ -115,21 +130,6 @@ end
 # p file.seqs_larger_30
 # file.percent
 # p file.percent_greater_30
-
-
-if ARGV.any?
-	list = ListFastQ.new
-	list.find_fastq_files
-
-	if ARGV[0] == "display"
-
-		print "\e[2J"
-		puts list.display
-	end
-end
-
-
-
 
 
 
