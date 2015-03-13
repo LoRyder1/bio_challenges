@@ -23,7 +23,6 @@
 
 # 1)  Recursively find all FASTQ files in a directory and report each file name and the percent of sequences in that file that are greater than 30 nucleotides long.
 
-
 class FileFastQ
  	attr_reader :file_by_line, :all_seqs, :seqs_larger_30, :percent_greater_30, :file
 	def initialize(filepath)
