@@ -22,18 +22,14 @@
 # 2)	Given a FASTA file with DNA sequences, find 10 most frequent sequences and return the sequence and their counts in the file.
 
 class Frequency
-	attr_reader :file, :parsed, :freq, :top10
+	attr_reader :file, :top10
 	def initialize(filepath)
 		@file = File.open(filepath)
-		@parsed = []
-		@freq = Hash.new(0)
 		@top10 = nil
 	end
 
 	def get_freq
-		parse
-		get_occurrence
-		sort_top10_freq
+		@top10 = sort_top10_freq(get_occurrence(parse))	
 	end
 
 	def display
@@ -45,73 +41,35 @@ class Frequency
 	private
 
 	def parse
+		parsed = []
 		file.each_with_index do |line, index|
 			parsed << line.strip if index.odd?
 		end
+		parsed
 	end
 
-	def get_occurrence
-		parsed.each { |seq| freq.store(seq, freq[seq]+1) }
+	def get_occurrence(array)
+		freq = Hash.new(0)
+		array.each { |seq| freq.store(seq, freq[seq]+1) }
+		freq
 	end
 
-	def sort_top10_freq
-		@top10 = Hash[freq.sort_by{|k,v| v}.reverse[0..9]]
+	def sort_top10_freq(freq)
+		Hash[freq.sort_by{|k,v| v}.reverse[0..9]]
 	end
-
 
 end
 
 file = "sample_files/fasta/sample.fasta"
 fasta = Frequency.new(file)
-# p fasta.get_freq
+fasta.get_freq
+fasta.display
 # p fasta.get_occurrence
 
 
 
-# p "hellot".capitalize.downcase
 
 
 
-class Test
-	def spartan
-		self + "hello"
-	end
-	def athens
-		"boom"
-	end
-end
 
-
-
-test1 = Test.new
-
-# p test1.athens
-# p test1.spartan
-class Foo
- def public_m
-  private_m # <=
- end
-
- def self.static_m
-   puts "static"
- end
-
- def self.static2_m
-   puts "static 2"
- end
- def test
- 		puts "#{self}"
- end
-
- private 
- def private_m
-  puts 'Hello'
- end
-end
-
-Foo.new.public_m
-Foo.static_m
-Foo.static2_m
-du = Foo.new
-du.test
 
