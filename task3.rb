@@ -138,8 +138,8 @@ if ARGV[0] == nil
 	puts "to annotate ENTER: 'ruby task3.rb annotate'"
 else
 	file_coord = "sample_files/annotate/coordinates_to_annotate.txt"
-	# file_gtf = "sample_files/gtf/hg19_annotations.gtf"
-	file_gtf = "sample_files/gtf/test.gtf"
+	file_gtf = "sample_files/gtf/hg19_annotations.gtf"
+	# file_gtf = "sample_files/gtf/test.gtf"
 	lookup = AnnotationLookup.new(file_coord, file_gtf)
 	if ARGV[0] == "annotate"
 		lookup.parse_files
@@ -154,9 +154,17 @@ end
 #---- Driver Code------
 
 # file_coord = "sample_files/annotate/coordinates_to_annotate.txt"
-# # file_gtf = "sample_files/gtf/hg19_annotations.gtf"
-# file_gtf = "sample_files/gtf/test.gtf"
+# file_gtf = "sample_files/gtf/hg19_annotations.gtf"
+# # file_gtf = "sample_files/gtf/test.gtf"
 # lookup = AnnotationLookup.new(file_coord, file_gtf)
+
+# lookup.parse_files
+# lookup.annotate
+# target = []
+# lookup.parsed_coords.each do |c|
+# 	target << c if c.gene_name != nil
+# end
+# p target[0]
 
 # # p lookup
 
