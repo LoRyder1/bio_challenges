@@ -82,10 +82,9 @@ class AnnotationLookup
 		parsed_coords.each do |coordinate|
 			target = coordinate.coord
 			range.each do |gtf|
-				s = gtf.start
-				e = gtf.edge
-				if (s..e).include?(target) == true
+				if target >= gtf.start && target <= gtf.edge
 			 		coordinate.add_annot(gtf.gene_name)
+			 		break
 			 	end	
 			end
 		end
@@ -134,22 +133,27 @@ end
 
 # file_gtf = test.gtf uses only 100,000 annotations out of 800,000+
 
+require 'benchmark'
+
 if ARGV[0] == nil
 	puts "to annotate ENTER: 'ruby task3.rb annotate'"
 else
 	file_coord = "sample_files/annotate/coordinates_to_annotate.txt"
 	file_gtf = "sample_files/gtf/hg19_annotations.gtf"
-	# file_gtf = "sample_files/gtf/test.gtf"
 	lookup = AnnotationLookup.new(file_coord, file_gtf)
 	if ARGV[0] == "annotate"
-		lookup.parse_files
-		lookup.annotate
+		time = Benchmark.measure do 
+			lookup.parse_files
+			lookup.annotate
+		end
+		puts time
 	else
 		puts "ENTER: 'ruby task3.rb annotate' "
 	end
 end
 
 
+# take about 30 sec for 20k records
 
 #---- Driver Code------
 
