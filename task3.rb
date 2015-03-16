@@ -90,13 +90,65 @@ class AnnotationLookup
 		end
 	end
 
-	def annotate
-		get_annot
-		File.new("annotation.txt",  "w+")
-		File.open("annotation.txt", 'w') do |file| 
-			parsed_coords.each { |c| file << "#{c.chr} #{c.coord} #{c.gene_name}\n" }
+# def iter_bindex(array, element)
+	def iter_bindex
+		range = gtf_range
+		# puts range.inspect
+		# range << Gtf.new(start: 124975518)
+		range.sort_by! do |gtf|
+			gtf.start
 		end
-		system("open", "annotation.txt")
+		# puts range.inspect
+
+		starts = []
+		edges = []		
+		range.each do |gtf|
+			starts << gtf.start
+			edges << gtf.edge
+		end
+
+		sorted = starts.sort
+		# puts sorted
+		sorted2 = edges.sort
+
+		# target = 124975518
+
+		target = 247654500
+
+		upper = sorted.size
+		lower = 0
+		while upper >= lower
+			mid = (upper + lower) /2
+			if sorted[mid] < target	
+				lower = mid + 1
+				break if target >= sorted[mid] && target <= sorted2[mid]
+			elsif sorted[mid] > target
+				upper = mid -1
+				break if target >= sorted[mid] && target <= sorted2[mid]
+			else 
+				return "#{sorted[mid]}" #this is the index
+				# return nil
+			end
+		end
+		return range[mid]
+	end
+
+
+
+
+
+
+
+
+
+	def annotate
+		p iter_bindex
+		# get_annot
+		# File.new("annotation.txt",  "w+")
+		# File.open("annotation.txt", 'w') do |file| 
+		# 	parsed_coords.each { |c| file << "#{c.chr} #{c.coord} #{c.gene_name}\n" }
+		# end
+		# system("open", "annotation.txt")
 	end
 
 end
