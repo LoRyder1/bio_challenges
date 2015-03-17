@@ -1,3 +1,4 @@
+require_relative "segment_tree"
 # chr3	refFlat	exon	134196546	134197558	.	-	.	gene_id "ANAPC13"; transcript_id "NM_001242374"; exon_number "3"; exon_id "NM_001242374.1"; gene_name "ANAPC13";	
 
 # chr12	20704380
@@ -90,65 +91,32 @@ class AnnotationLookup
 		end
 	end
 
-# def iter_bindex(array, element)
-	def iter_bindex
+	def segment_tree_lookup
 		range = gtf_range
-		# puts range.inspect
-		# range << Gtf.new(start: 124975518)
-		range.sort_by! do |gtf|
-			gtf.start
-		end
-		# puts range.inspect
-
-		starts = []
-		edges = []		
-		range.each do |gtf|
-			starts << gtf.start
-			edges << gtf.edge
-		end
-
-		sorted = starts.sort
-		# puts sorted
-		sorted2 = edges.sort
-
-		# target = 124975518
-
-		target = 247654500
-
-		upper = sorted.size
-		lower = 0
-		while upper >= lower
-			mid = (upper + lower) /2
-			if sorted[mid] < target	
-				lower = mid + 1
-				break if target >= sorted[mid] && target <= sorted2[mid]
-			elsif sorted[mid] > target
-				upper = mid -1
-				break if target >= sorted[mid] && target <= sorted2[mid]
-			else 
-				return "#{sorted[mid]}" #this is the index
-				# return nil
+		hash = Hash.new(0)
+			range.each do |gtf|
+				hash.store(gtf.start..gtf.edge, gtf.gene_name)
+			end
+		tree = SegmentTree.new(hash)
+			
+		parsed_coords.each do |coordinate|
+			target = coordinate.coord
+			if tree.find(target) == nil 
+				next
+			else	
+				coordinate.add_annot(tree.find(target).value)
 			end
 		end
-		return range[mid]
 	end
 
-
-
-
-
-
-
-
-
 	def annotate
-		p iter_bindex
+		segment_tree_lookup
 		# get_annot
-		# File.new("annotation.txt",  "w+")
-		# File.open("annotation.txt", 'w') do |file| 
-		# 	parsed_coords.each { |c| file << "#{c.chr} #{c.coord} #{c.gene_name}\n" }
-		# end
-		# system("open", "annotation.txt")
+		File.new("annotation.txt",  "w+")
+		File.open("annotation.txt", 'w') do |file| 
+			parsed_coords.each { |c| file << "#{c.chr} #{c.coord} #{c.gene_name}\n" }
+		end
+		system("open", "annotation.txt")
 	end
 
 end
@@ -162,6 +130,7 @@ class Coord
 	end
 
 	def add_annot(gtf_gene_name)
+
 		@gene_name = gtf_gene_name
 	end
 end
@@ -182,6 +151,7 @@ class Gtf
 	end
 
 end
+
 
 # file_gtf = test.gtf uses only 100,000 annotations out of 800,000+
 
